@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Digital USTC · 序章</title>
+    <title>Digital USTC · 序章 | 慢镜轮转 · 疾语序诗</title>
     <style>
         * {
             margin: 0;
@@ -55,10 +55,12 @@
             background-repeat: no-repeat;
             filter: brightness(0.4) contrast(1.1) blur(1px);
             transform: scale(1);
-            transition: transform 6s ease-out;
+            transition: transform 8.6s ease-out;  /* 原本6s → 6/0.7 ≈ 8.5714s，慢为0.7倍效果 */
+            will-change: transform;
             z-index: 1;
         }
 
+        /* 动态拉近缩放效果 — 让每一帧画面拥有“沉浸式慢镜头” */
         #background-layer.zoom-effect {
             transform: scale(1.08);
         }
@@ -297,6 +299,7 @@
             }
         }
 
+        /* 隐藏原始其他样式干扰 */
         .topbar, .title-center, .container, .left, .right, .poem-container, .loader, #img, input, button {
             display: none !important;
         }
@@ -321,7 +324,6 @@
         <h1>✦ DIGITAL AVATAR ✦</h1>
         <div class="sub">NEXT REALM</div>
         <p>文本终焉，数据星河的门扉已然敞开。<br>你准备好了吗？跨越虚实边界，前往记忆镜像深处。</p>
-        <!-- 按钮文字已改为 "Play Again!" -->
         <div class="enter-btn" id="enter-digital-btn">
             🔁 Play Again!
         </div>
@@ -337,6 +339,7 @@
         const transitionPanel = document.getElementById('transition-panel');
         const enterBtn = document.getElementById('enter-digital-btn');
 
+        // 原叙事诗文本 (保留完整深邃意境)
         const storyRaw = `
 Beneath layers of archived code lies an unshakable truth.
 By 2099, humanity had vanished entirely...
@@ -401,6 +404,7 @@ Countless undiscovered memories await our exploration.
             textContainer.appendChild(div);
         });
 
+        // 图片列表 (保持原6张沉浸序列)
         const backgrounds = [
             "netlify/images/bg1.png",
             "netlify/images/bg2.png",
@@ -418,16 +422,18 @@ Countless undiscovered memories await our exploration.
             bgTimeouts = [];
         }
         
+        // 图片切换 - 速度慢为原来的0.7倍 → 切换间隔从7000ms调整为10000ms (7s / 0.7 = 10s)
+        // 过渡动画已在CSS中从6s调整为8.6s (6/0.7 ≈8.571s)，实现视觉上舒缓的“慢镜头”
         function switchBackground() {
             if (!bgLayer) return;
             if (currentBgIndex >= backgrounds.length) return;
             bgLayer.style.backgroundImage = `url('${backgrounds[currentBgIndex]}')`;
             bgLayer.classList.remove('zoom-effect');
-            void bgLayer.offsetWidth;
+            void bgLayer.offsetWidth;  // 强制重绘
             bgLayer.classList.add('zoom-effect');
             currentBgIndex++;
             if (currentBgIndex < backgrounds.length) {
-                const tid = setTimeout(() => switchBackground(), 7000);
+                const tid = setTimeout(() => switchBackground(), 10000); // 10秒间隔 (慢化0.7倍)
                 bgTimeouts.push(tid);
             }
         }
@@ -442,14 +448,15 @@ Countless undiscovered memories await our exploration.
             }
             currentBgIndex = 1;
             if (backgrounds.length > 1) {
-                const tid = setTimeout(() => switchBackground(), 7000);
+                const tid = setTimeout(() => switchBackground(), 10000); // 首张图停留10秒后切第二张（慢化0.7倍）
                 bgTimeouts.push(tid);
             }
         }
         
         let animationId = null;
         let currentY = window.innerHeight;
-        const SCROLL_SPEED = 0.58;
+        // 文字滚动速度: 原速度0.58 → 加快1.4倍 => 0.58 * 1.4 = 0.812 像素/帧 (更流畅的叙事推进)
+        const SCROLL_SPEED = 0.812;   // 疾语1.4倍
         
         function getTextScrollHeight() {
             return textContainer.scrollHeight;
@@ -538,6 +545,7 @@ Countless undiscovered memories await our exploration.
         if (skipBtn) skipBtn.addEventListener('click', skipIntro);
         if (enterBtn) enterBtn.addEventListener('click', redirectToDigitalAvatar);
         
+        // ---------- 粒子背景系统 (保留原有科技动态) ----------
         const canvas = document.getElementById('bg');
         let ctx = null;
         let particles = [];
@@ -591,10 +599,12 @@ Countless undiscovered memories await our exploration.
         }
         
         initParticles();
-        initBackgroundCarousel();
-        startScrollAnimation();
+        initBackgroundCarousel();   // 启动慢0.7倍图片轮播 + 长过渡缩放
+        startScrollAnimation();     // 文字速度快1.4倍自动滚屏
+        
         window.addEventListener('resize', handleResize);
         
+        // 兜底检测自动完成滚动（当窗口极端resize或滚动完毕时）
         let safetyChecker = setInterval(() => {
             if (isIntroFinished) {
                 clearInterval(safetyChecker);
