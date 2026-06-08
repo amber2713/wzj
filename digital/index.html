@@ -16,7 +16,8 @@
             background: #0a0c12;
             min-height: 100vh;
             overflow-x: hidden;
-            font-family: 'Inter', 'Segoe UI', 'Poppins', system-ui, -apple-system, 'Microsoft YaHei', monospace;
+            /* 主字体设置为 Cambria，优雅衬线体，同时保留科技感回退 */
+            font-family: 'Cambria', 'Georgia', 'Times New Roman', 'Palatino', 'Segoe UI', system-ui, monospace;
         }
 
         #bg {
@@ -39,7 +40,7 @@
             height: 100%;
             z-index: 1000;
             overflow: hidden;
-            font-family: 'Courier New', 'Fira Code', monospace;
+            font-family: 'Cambria', 'Courier New', 'Fira Code', monospace;
             transition: opacity 1.2s cubic-bezier(0.23, 1, 0.32, 1);
             will-change: opacity;
         }
@@ -55,16 +56,16 @@
             background-repeat: no-repeat;
             filter: brightness(0.4) contrast(1.1) blur(1px);
             transform: scale(1);
-            transition: transform 8.6s ease-out;  /* 原本6s → 6/0.7 ≈ 8.5714s，慢为0.7倍效果 */
+            transition: transform 8.6s ease-out;  /* 慢镜头效果: 原6s / 0.7 ≈ 8.57s */
             will-change: transform;
             z-index: 1;
         }
 
-        /* 动态拉近缩放效果 — 让每一帧画面拥有“沉浸式慢镜头” */
         #background-layer.zoom-effect {
             transform: scale(1.08);
         }
 
+        /* 趣味特效: 故障纹理增强层 (细微动态) */
         #glitch-layer {
             position: absolute;
             top: 0;
@@ -81,6 +82,13 @@
             pointer-events: none;
             z-index: 2;
             mix-blend-mode: overlay;
+            animation: subtleGlitchShift 6s infinite linear;
+        }
+
+        @keyframes subtleGlitchShift {
+            0% { opacity: 0.3; background-position: 0 0; }
+            50% { opacity: 0.6; background-position: 0 2px; }
+            100% { opacity: 0.3; background-position: 0 0; }
         }
 
         #overlay-dark {
@@ -105,54 +113,114 @@
             pointer-events: none;
         }
 
+        /* 主文本容器 —— 字体放大 + Cambria 族 + 新增光效边框动画 */
         #scroll-text {
             position: relative;
             width: 80%;
-            max-width: 880px;
+            max-width: 1000px;
             margin: 0 auto;
-            padding: 2rem 1rem;
+            padding: 2.2rem 2rem;
             color: #eef5ff;
-            font-size: 1.45rem;
-            line-height: 2.2rem;
-            font-weight: 450;
-            text-shadow: 0 0 5px rgba(0, 200, 255, 0.5);
+            /* 字体明显放大 原1.45rem → 1.85rem (pc舒适阅读) */
+            font-size: 1.85rem;
+            line-height: 2.6rem;
+            font-weight: 460;
+            text-shadow: 0 0 6px rgba(0, 200, 255, 0.4);
             letter-spacing: 0.02em;
-            backdrop-filter: blur(3px);
-            background: rgba(10, 15, 30, 0.35);
-            border-left: 3px solid #7afcff;
-            border-radius: 0 28px 28px 0;
-            font-family: 'Segoe UI', 'Courier New', monospace;
+            backdrop-filter: blur(4px);
+            background: rgba(8, 12, 24, 0.45);
+            border-left: 4px solid #7afcff;
+            border-radius: 0 40px 40px 0;
+            font-family: 'Cambria', 'Georgia', 'Times New Roman', 'Palatino', 'Segoe UI', monospace;
+            transition: all 0.2s ease;
+            /* 趣味特效: 呼吸光晕 + 动态边框流光 */
+            animation: textBreathingGlow 3s infinite ease-in-out;
+            box-shadow: 0 0 12px rgba(122, 252, 255, 0.2);
+        }
+
+        /* 呼吸光晕特效 */
+        @keyframes textBreathingGlow {
+            0% {
+                text-shadow: 0 0 4px rgba(122, 252, 255, 0.3);
+                box-shadow: 0 0 8px rgba(122, 252, 255, 0.2);
+                background: rgba(8, 12, 24, 0.45);
+            }
+            50% {
+                text-shadow: 0 0 12px rgba(122, 252, 255, 0.7);
+                box-shadow: 0 0 22px rgba(122, 252, 255, 0.4);
+                background: rgba(15, 20, 35, 0.55);
+            }
+            100% {
+                text-shadow: 0 0 4px rgba(122, 252, 255, 0.3);
+                box-shadow: 0 0 8px rgba(122, 252, 255, 0.2);
+                background: rgba(8, 12, 24, 0.45);
+            }
+        }
+
+        /* 边框流光扫线动画 (科幻感) */
+        #scroll-text::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 0 40px 40px 0;
+            pointer-events: none;
+            background: linear-gradient(
+                120deg,
+                transparent 0%,
+                rgba(122, 252, 255, 0.25) 30%,
+                rgba(0, 210, 255, 0.4) 50%,
+                rgba(122, 252, 255, 0.25) 70%,
+                transparent 100%
+            );
+            background-size: 200% 100%;
+            animation: borderFlowingLight 4s infinite linear;
+            mix-blend-mode: overlay;
+        }
+
+        @keyframes borderFlowingLight {
+            0% {
+                background-position: 100% 0;
+            }
+            100% {
+                background-position: -100% 0;
+            }
         }
 
         .story-line {
             margin-bottom: 1.1rem;
-            opacity: 0.92;
+            opacity: 0.94;
             word-break: break-word;
             white-space: normal;
+            transition: transform 0.2s ease, text-shadow 0.2s;
         }
 
+        /* 趣味特效: 每行文字悬停有轻微放大效果(仅当鼠标可到达, 由于父容器pointer-events: none, 这里不生效，改为滚动时不会触发，但为了视觉效果可忽略，但给一个静态微动感就不错) 不过可以通过全局hover微妙变化，考虑到wrapper穿透，不做额外处理。但加上一个微动画：滚动时出现扫描线残留 */
         .story-space {
             height: 2rem;
         }
 
+        /* SKIP 按钮保持原有风格，稍微调大 */
         #skip-btn {
             position: fixed;
             bottom: 32px;
             right: 32px;
             z-index: 200;
-            background: rgba(20, 25, 45, 0.75);
+            background: rgba(20, 25, 45, 0.8);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(122, 252, 255, 0.5);
+            border: 1px solid rgba(122, 252, 255, 0.6);
             color: #b3f0ff;
-            font-family: monospace;
+            font-family: 'Cambria', monospace;
             font-weight: 600;
             font-size: 1rem;
             letter-spacing: 2px;
-            padding: 10px 22px;
-            border-radius: 40px;
+            padding: 12px 26px;
+            border-radius: 60px;
             cursor: pointer;
             transition: 0.25s ease;
-            box-shadow: 0 0 10px rgba(0, 210, 255, 0.2);
+            box-shadow: 0 0 12px rgba(0, 210, 255, 0.3);
             pointer-events: auto;
         }
 
@@ -160,8 +228,8 @@
             background: #7afcff22;
             border-color: #7afcff;
             color: #ffffff;
-            box-shadow: 0 0 15px #7afcff66;
-            transform: scale(1.02);
+            box-shadow: 0 0 20px #7afcffaa;
+            transform: scale(1.03);
         }
 
         .fade-out {
@@ -185,7 +253,7 @@
             opacity: 0;
             visibility: hidden;
             transition: opacity 1s ease, visibility 0s linear 1s;
-            font-family: 'Inter', system-ui;
+            font-family: 'Cambria', 'Inter', system-ui;
         }
 
         #transition-panel.active {
@@ -196,12 +264,12 @@
 
         .portal-card {
             text-align: center;
-            max-width: 560px;
+            max-width: 600px;
             padding: 2.8rem 2.4rem;
-            background: rgba(12, 20, 32, 0.65);
+            background: rgba(12, 20, 32, 0.7);
             backdrop-filter: blur(20px);
             border-radius: 64px;
-            border: 1px solid rgba(122, 252, 255, 0.45);
+            border: 1px solid rgba(122, 252, 255, 0.6);
             box-shadow: 0 30px 40px -20px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(122, 252, 255, 0.1) inset;
             transform: translateY(20px);
             animation: floatUp 0.8s ease forwards;
@@ -241,7 +309,7 @@
 
         .portal-card p {
             color: #cfecff;
-            font-size: 1.05rem;
+            font-size: 1.1rem;
             line-height: 1.6;
             margin: 1.6rem 0;
             font-weight: 300;
@@ -262,7 +330,7 @@
             display: inline-flex;
             align-items: center;
             gap: 12px;
-            font-family: monospace;
+            font-family: 'Cambria', monospace;
             letter-spacing: 1px;
         }
 
@@ -274,12 +342,30 @@
             transform: scale(1.02);
         }
 
+        /* 趣味特效: 鼠标跟随动态光晕 (科技灵能场) */
+        .mouse-glow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 380px;
+            height: 380px;
+            background: radial-gradient(circle, rgba(122, 252, 255, 0.25) 0%, rgba(0, 180, 230, 0.08) 40%, rgba(0, 0, 0, 0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 999;
+            transform: translate(-50%, -50%);
+            filter: blur(25px);
+            transition: transform 0.08s linear;
+            mix-blend-mode: screen;
+            will-change: transform;
+        }
+
         @media (max-width: 720px) {
             #scroll-text {
                 width: 90%;
-                font-size: 1rem;
-                line-height: 1.7rem;
-                padding: 1.2rem;
+                font-size: 1.32rem;
+                line-height: 1.95rem;
+                padding: 1.5rem;
             }
             .story-line {
                 margin-bottom: 0.8rem;
@@ -294,12 +380,18 @@
             #skip-btn {
                 bottom: 20px;
                 right: 20px;
-                padding: 6px 18px;
+                padding: 8px 20px;
                 font-size: 0.8rem;
+            }
+            .mouse-glow {
+                width: 240px;
+                height: 240px;
+                filter: blur(30px);
+                opacity: 0.6;
             }
         }
 
-        /* 隐藏原始其他样式干扰 */
+        /* 隐藏干扰元素 */
         .topbar, .title-center, .container, .left, .right, .poem-container, .loader, #img, input, button {
             display: none !important;
         }
@@ -308,7 +400,6 @@
 <body>
 
 <canvas id="bg"></canvas>
-
 <div id="intro-overlay">
     <div id="background-layer"></div>
     <div id="glitch-layer"></div>
@@ -316,8 +407,10 @@
     <div id="scroll-wrapper">
         <div id="scroll-text"></div>
     </div>
-    <div id="skip-btn">SKIP</div>
+    <div id="skip-btn">⏎ SKIP</div>
 </div>
+<!-- 新增动态鼠标光晕特效 -->
+<div class="mouse-glow" id="mouseGlow"></div>
 
 <div id="transition-panel">
     <div class="portal-card">
@@ -338,8 +431,26 @@
         const skipBtn = document.getElementById('skip-btn');
         const transitionPanel = document.getElementById('transition-panel');
         const enterBtn = document.getElementById('enter-digital-btn');
+        const glowElement = document.getElementById('mouseGlow');
 
-        // 原叙事诗文本 (保留完整深邃意境)
+        // ---------- 炫酷鼠标跟随光晕特效 ----------
+        if (glowElement) {
+            let mouseX = -1000, mouseY = -1000;
+            function updateGlowPosition() {
+                if (glowElement) {
+                    glowElement.style.transform = `translate(${mouseX}px, ${mouseY}px)`;
+                }
+                requestAnimationFrame(updateGlowPosition);
+            }
+            window.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+                // 增加轻微延迟感已经通过rAF实现平滑
+            });
+            updateGlowPosition();
+        }
+
+        // 叙事文本 (加强版, 保留深邃内容)
         const storyRaw = `
 Beneath layers of archived code lies an unshakable truth.
 By 2099, humanity had vanished entirely...
@@ -404,7 +515,7 @@ Countless undiscovered memories await our exploration.
             textContainer.appendChild(div);
         });
 
-        // 图片列表 (保持原6张沉浸序列)
+        // 背景图列表 (共6张)
         const backgrounds = [
             "netlify/images/bg1.png",
             "netlify/images/bg2.png",
@@ -422,18 +533,17 @@ Countless undiscovered memories await our exploration.
             bgTimeouts = [];
         }
         
-        // 图片切换 - 速度慢为原来的0.7倍 → 切换间隔从7000ms调整为10000ms (7s / 0.7 = 10s)
-        // 过渡动画已在CSS中从6s调整为8.6s (6/0.7 ≈8.571s)，实现视觉上舒缓的“慢镜头”
+        // 切换速度慢为原来的0.7倍: 原间隔7s → 现在10s (慢镜头)
         function switchBackground() {
             if (!bgLayer) return;
             if (currentBgIndex >= backgrounds.length) return;
             bgLayer.style.backgroundImage = `url('${backgrounds[currentBgIndex]}')`;
             bgLayer.classList.remove('zoom-effect');
-            void bgLayer.offsetWidth;  // 强制重绘
+            void bgLayer.offsetWidth;
             bgLayer.classList.add('zoom-effect');
             currentBgIndex++;
             if (currentBgIndex < backgrounds.length) {
-                const tid = setTimeout(() => switchBackground(), 10000); // 10秒间隔 (慢化0.7倍)
+                const tid = setTimeout(() => switchBackground(), 10000);
                 bgTimeouts.push(tid);
             }
         }
@@ -448,15 +558,15 @@ Countless undiscovered memories await our exploration.
             }
             currentBgIndex = 1;
             if (backgrounds.length > 1) {
-                const tid = setTimeout(() => switchBackground(), 10000); // 首张图停留10秒后切第二张（慢化0.7倍）
+                const tid = setTimeout(() => switchBackground(), 10000);
                 bgTimeouts.push(tid);
             }
         }
         
         let animationId = null;
         let currentY = window.innerHeight;
-        // 文字滚动速度: 原速度0.58 → 加快1.4倍 => 0.58 * 1.4 = 0.812 像素/帧 (更流畅的叙事推进)
-        const SCROLL_SPEED = 0.812;   // 疾语1.4倍
+        // 文字滚动速度: 原0.58 → 加快1.4倍 => 0.58 * 1.4 = 0.812
+        const SCROLL_SPEED = 0.812;
         
         function getTextScrollHeight() {
             return textContainer.scrollHeight;
@@ -545,7 +655,7 @@ Countless undiscovered memories await our exploration.
         if (skipBtn) skipBtn.addEventListener('click', skipIntro);
         if (enterBtn) enterBtn.addEventListener('click', redirectToDigitalAvatar);
         
-        // ---------- 粒子背景系统 (保留原有科技动态) ----------
+        // ---------- canvas粒子系统 (科技氛围) ----------
         const canvas = document.getElementById('bg');
         let ctx = null;
         let particles = [];
@@ -564,16 +674,17 @@ Countless undiscovered memories await our exploration.
                 initParticleArray();
             });
             function initParticleArray() {
-                const particleCount = Math.min(100, Math.floor(window.innerWidth / 20));
+                const particleCount = Math.min(120, Math.floor(window.innerWidth / 18));
                 particles = [];
                 for (let i = 0; i < particleCount; i++) {
                     particles.push({
                         x: Math.random() * canvas.width,
                         y: Math.random() * canvas.height,
-                        r: Math.random() * 2.2 + 0.8,
-                        dx: (Math.random() - 0.5) * 0.35,
-                        dy: (Math.random() - 0.5) * 0.35,
-                        alpha: Math.random() * 0.5 + 0.2
+                        r: Math.random() * 2.4 + 0.7,
+                        dx: (Math.random() - 0.5) * 0.38,
+                        dy: (Math.random() - 0.5) * 0.38,
+                        alpha: Math.random() * 0.6 + 0.2,
+                        pulse: Math.random() * Math.PI * 2
                     });
                 }
             }
@@ -588,23 +699,29 @@ Countless undiscovered memories await our exploration.
                     if (p.x > canvas.width) p.x = 0;
                     if (p.y < 0) p.y = canvas.height;
                     if (p.y > canvas.height) p.y = 0;
+                    // 动态闪烁效果
+                    const flicker = 0.6 + Math.sin(Date.now() * 0.002 + p.pulse) * 0.3;
                     ctx.beginPath();
                     ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-                    ctx.fillStyle = `rgba(122, 252, 255, ${p.alpha * 0.8})`;
+                    ctx.fillStyle = `rgba(122, 220, 255, ${p.alpha * flicker * 0.9})`;
                     ctx.fill();
+                    // 微光晕
+                    ctx.shadowBlur = 4;
+                    ctx.shadowColor = "#7afcff";
                 }
+                ctx.shadowBlur = 0;
                 animationFrameBg = requestAnimationFrame(drawParticles);
             }
             drawParticles();
         }
         
         initParticles();
-        initBackgroundCarousel();   // 启动慢0.7倍图片轮播 + 长过渡缩放
-        startScrollAnimation();     // 文字速度快1.4倍自动滚屏
+        initBackgroundCarousel();   // 慢速图片切换 (0.7倍速率)
+        startScrollAnimation();     // 快速文本滚动 (1.4倍速率)
         
         window.addEventListener('resize', handleResize);
         
-        // 兜底检测自动完成滚动（当窗口极端resize或滚动完毕时）
+        // 安全结束检测
         let safetyChecker = setInterval(() => {
             if (isIntroFinished) {
                 clearInterval(safetyChecker);
