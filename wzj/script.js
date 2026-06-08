@@ -1,50 +1,361 @@
-// ========================================
-// 背景图片
-// ========================================
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Digital USTC · 序章</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none; /* 避免拖动干扰，不影响文字选择但视觉干净 */
+        }
 
-const backgrounds = [
-    "netlify/images/bg1.jpg",
-    "netlify/images/bg2.jpg",
-    "netlify/images/bg3.jpg",
-    "netlify/images/bg4.jpg",
-    "netlify/images/bg5.jpg",
-    "netlify/images/bg6.jpg"
-];
+        body {
+            background: #0a0c12;
+            min-height: 100vh;
+            overflow-x: hidden;
+            font-family: 'Inter', 'Segoe UI', 'Poppins', system-ui, -apple-system, 'Microsoft YaHei', monospace;
+        }
 
-const backgroundLayer = document.getElementById("background-layer");
+        /* ---------- 粒子画布 (动态背景) ---------- */
+        #bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.5;
+        }
 
-let currentBg = 0;
+        /* ---------- 开场动画遮罩层 (完整覆盖) ---------- */
+        #intro-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+            overflow: hidden;
+            font-family: 'Courier New', 'Fira Code', monospace;
+            transition: opacity 1.2s cubic-bezier(0.23, 1, 0.32, 1);
+            will-change: opacity;
+        }
 
-function switchBackground() {
-    backgroundLayer.style.backgroundImage =
-        `url('${backgrounds[currentBg]}')`;
+        /* 背景图层 (轮播抽象摄影) */
+        #background-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center 30%;
+            background-repeat: no-repeat;
+            filter: brightness(0.4) contrast(1.1) blur(1px);
+            transform: scale(1);
+            transition: transform 6s ease-out;
+            z-index: 1;
+        }
 
-    backgroundLayer.classList.remove("zoom-effect");
+        #background-layer.zoom-effect {
+            transform: scale(1.08);
+        }
 
-    void backgroundLayer.offsetWidth;
+        /* 故障纹理层 (增加科技感) */
+        #glitch-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 255, 255, 0.02) 0px,
+                rgba(255, 0, 255, 0.02) 2px,
+                transparent 2px,
+                transparent 8px
+            );
+            pointer-events: none;
+            z-index: 2;
+            mix-blend-mode: overlay;
+        }
 
-    backgroundLayer.classList.add("zoom-effect");
+        /* 黑色渐变柔化边缘 */
+        #overlay-dark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, transparent 40%, #000000aa 90%);
+            z-index: 3;
+            pointer-events: none;
+        }
 
-    currentBg++;
+        /* 文字滚动容器 */
+        #scroll-wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 10;
+            pointer-events: none;
+        }
 
-    if (currentBg >= backgrounds.length) {
-        currentBg = backgrounds.length - 1;
-    }
-}
+        #scroll-text {
+            position: relative;
+            width: 80%;
+            max-width: 880px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+            color: #eef5ff;
+            font-size: 1.45rem;
+            line-height: 2.2rem;
+            font-weight: 450;
+            text-shadow: 0 0 5px rgba(0, 200, 255, 0.5);
+            letter-spacing: 0.02em;
+            backdrop-filter: blur(3px);
+            background: rgba(10, 15, 30, 0.35);
+            border-left: 3px solid #7afcff;
+            border-radius: 0 28px 28px 0;
+            font-family: 'Segoe UI', 'Courier New', monospace;
+            transition: all 0.2s;
+        }
 
-switchBackground();
+        .story-line {
+            margin-bottom: 1.1rem;
+            opacity: 0.92;
+            word-break: break-word;
+            white-space: normal;
+        }
 
-setTimeout(() => switchBackground(), 7000);
-setTimeout(() => switchBackground(), 14000);
-setTimeout(() => switchBackground(), 21000);
-setTimeout(() => switchBackground(), 28000);
-setTimeout(() => switchBackground(), 36000);
+        .story-space {
+            height: 2rem;
+        }
 
-// ========================================
-// 故事文本
-// ========================================
+        /* SKIP 按钮 */
+        #skip-btn {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            z-index: 200;
+            background: rgba(20, 25, 45, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(122, 252, 255, 0.5);
+            color: #b3f0ff;
+            font-family: monospace;
+            font-weight: 600;
+            font-size: 1rem;
+            letter-spacing: 2px;
+            padding: 10px 22px;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.25s ease;
+            box-shadow: 0 0 10px rgba(0, 210, 255, 0.2);
+            pointer-events: auto;
+        }
 
-const story = `
+        #skip-btn:hover {
+            background: #7afcff22;
+            border-color: #7afcff;
+            color: #ffffff;
+            box-shadow: 0 0 15px #7afcff66;
+            transform: scale(1.02);
+        }
+
+        /* 淡出动画 */
+        .fade-out {
+            opacity: 0 !important;
+            visibility: visible;
+            pointer-events: none;
+        }
+
+        /* ---------- 跳转面板 (全新入口，简洁纯粹) ---------- */
+        #transition-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(ellipse at 30% 40%, #03050b, #000000dd);
+            backdrop-filter: blur(16px);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 1s ease, visibility 0s linear 1s;
+            font-family: 'Inter', system-ui;
+        }
+
+        #transition-panel.active {
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.9s cubic-bezier(0.2, 0.9, 0.3, 1.1), visibility 0s linear 0s;
+        }
+
+        .portal-card {
+            text-align: center;
+            max-width: 560px;
+            padding: 2.8rem 2.4rem;
+            background: rgba(12, 20, 32, 0.65);
+            backdrop-filter: blur(20px);
+            border-radius: 64px;
+            border: 1px solid rgba(122, 252, 255, 0.45);
+            box-shadow: 0 30px 40px -20px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(122, 252, 255, 0.1) inset;
+            transform: translateY(20px);
+            animation: floatUp 0.8s ease forwards;
+        }
+
+        @keyframes floatUp {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+        }
+
+        .portal-card h1 {
+            font-size: 3rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #ffffff, #7afcff, #a0e9ff);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .portal-card .sub {
+            font-size: 1rem;
+            color: #a0c4e8;
+            letter-spacing: 2px;
+            margin-bottom: 2rem;
+            border-bottom: 1px dashed rgba(122, 252, 255, 0.4);
+            display: inline-block;
+            padding-bottom: 6px;
+        }
+
+        .portal-card p {
+            color: #cfecff;
+            font-size: 1.05rem;
+            line-height: 1.6;
+            margin: 1.6rem 0;
+            font-weight: 300;
+        }
+
+        .enter-btn {
+            background: linear-gradient(105deg, #7afcff22, #2f80ed33);
+            border: 1.5px solid #7afcff;
+            color: #e2f0ff;
+            font-size: 1.3rem;
+            font-weight: 600;
+            padding: 14px 36px;
+            border-radius: 60px;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            margin-top: 1rem;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            font-family: monospace;
+            letter-spacing: 1px;
+        }
+
+        .enter-btn:hover {
+            background: #7afcffcc;
+            border-color: #ffffff;
+            color: #0a0f1a;
+            box-shadow: 0 0 28px #7afcffaa;
+            transform: scale(1.02);
+        }
+
+        /* 响应式 */
+        @media (max-width: 720px) {
+            #scroll-text {
+                width: 90%;
+                font-size: 1rem;
+                line-height: 1.7rem;
+                padding: 1.2rem;
+            }
+            .story-line {
+                margin-bottom: 0.8rem;
+            }
+            .portal-card {
+                margin: 1.5rem;
+                padding: 2rem 1.5rem;
+            }
+            .portal-card h1 {
+                font-size: 2.2rem;
+            }
+            #skip-btn {
+                bottom: 20px;
+                right: 20px;
+                padding: 6px 18px;
+                font-size: 0.8rem;
+            }
+        }
+
+        /* 防止任何原有多余元素干扰，彻底清除残留样式 */
+        .topbar, .title-center, .container, .left, .right, .poem-container, .loader, #img, input, button {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 粒子背景画布 -->
+<canvas id="bg"></canvas>
+
+<!-- 开场动画层 -->
+<div id="intro-overlay">
+    <div id="background-layer"></div>
+    <div id="glitch-layer"></div>
+    <div id="overlay-dark"></div>
+    <div id="scroll-wrapper">
+        <div id="scroll-text"></div>
+    </div>
+    <div id="skip-btn">SKIP</div>
+</div>
+
+<!-- 全新跳转面板（替代原所有功能） -->
+<div id="transition-panel">
+    <div class="portal-card">
+        <h1>✦ DIGITAL AVATAR ✦</h1>
+        <div class="sub">NEXT REALM</div>
+        <p>文本终焉，数据星河的门扉已然敞开。<br>你准备好了吗？跨越虚实边界，前往记忆镜像深处。</p>
+        <div class="enter-btn" id="enter-digital-btn">
+            ⚡ 进入 Digital Avatar ⚡
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // --------------------------------------------------------------
+        // 1. 核心元素
+        // --------------------------------------------------------------
+        const introOverlay = document.getElementById('intro-overlay');
+        const bgLayer = document.getElementById('background-layer');
+        const textContainer = document.getElementById('scroll-text');
+        const skipBtn = document.getElementById('skip-btn');
+        const transitionPanel = document.getElementById('transition-panel');
+        const enterBtn = document.getElementById('enter-digital-btn');
+
+        // 故事文本 (保留原始氛围，烘托 USTC 数字诗章)
+        const storyRaw = `
 Beneath layers of archived code lies an unshakable truth.
 By 2099, humanity had vanished entirely...
 
@@ -92,119 +403,328 @@ Tender kindness lingers from ordinary, quiet human moments.
 
 Stretching endlessly ahead lie vast digital realms.
 Countless undiscovered memories await our exploration.
-`;
+        `;
 
-const lines = story
-    .split("\n")
-    .map(line => line.trim());
+        // 构建行数组
+        const lines = storyRaw.split('\n').map(line => line.trim());
+        
+        // 填充文字容器
+        lines.forEach(line => {
+            const div = document.createElement('div');
+            div.className = 'story-line';
+            if (line === '') {
+                div.classList.add('story-space');
+                div.innerHTML = '&nbsp;';
+            } else {
+                div.textContent = line;
+            }
+            textContainer.appendChild(div);
+        });
 
-// ========================================
-// 创建滚动文字
-// ========================================
-
-const textContainer = document.getElementById("scroll-text");
-
-lines.forEach(line => {
-    const div = document.createElement("div");
-
-    div.className = "story-line";
-
-    if (line === "") {
-        div.classList.add("story-space");
-        div.innerHTML = "&nbsp;";
-    } else {
-        div.textContent = line;
-    }
-
-    textContainer.appendChild(div);
-});
-
-// ========================================
-// 文字滚动动画
-// ========================================
-
-let y = window.innerHeight;
-
-const scrollSpeed = 0.55;
-
-function animateText() {
-    y -= scrollSpeed;
-
-    textContainer.style.transform =
-        `translateY(${y}px)`;
-
-    requestAnimationFrame(animateText);
-}
-
-animateText();
-
-// ========================================
-// Skip按钮
-// ========================================
-
-function skipIntro() {
-    const overlay =
-        document.getElementById("intro-overlay");
-
-    overlay.classList.add("fade-out");
-
-    setTimeout(() => {
-        overlay.style.display = "none";
-    }, 1500);
-}
-
-document
-.getElementById("skip-btn")
-.addEventListener("click", skipIntro);
-
-// ========================================
-// 粒子背景
-// ========================================
-
-const canvas = document.getElementById("bg");
-const ctx = canvas.getContext("2d");
-
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
-let dots = Array.from(
-    { length: 80 },
-    () => ({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        r: Math.random() * 2 + 1,
-        dx: Math.random() - 0.5,
-        dy: Math.random() - 0.5
-    })
-);
-
-function animateParticles() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    dots.forEach(d => {
-        d.x += d.dx;
-        d.y += d.dy;
-
-        if (d.x < 0 || d.x > canvas.width) d.dx *= -1;
-        if (d.y < 0 || d.y > canvas.height) d.dy *= -1;
-
-        ctx.beginPath();
-
-        ctx.arc(
-            d.x,
-            d.y,
-            d.r,
-            0,
-            Math.PI * 2
-        );
-
-        ctx.fillStyle =
-            "rgba(245,222,179,0.7)";
-
-        ctx.fill();
-    });
-
-    requestAnimationFrame(animateParticles);
-}
-
-animateParticles();
+        // --------------------------------------------------------------
+        // 2. 背景轮播 (保留艺术氛围)
+        // --------------------------------------------------------------
+        const backgrounds = [
+            "netlify/images/bg1.jpg",
+            "netlify/images/bg2.jpg",
+            "netlify/images/bg3.jpg",
+            "netlify/images/bg4.jpg",
+            "netlify/images/bg5.jpg",
+            "netlify/images/bg6.jpg"
+        ];
+        
+        let currentBgIndex = 0;
+        let bgTimeouts = [];   // 存储所有定时器
+        
+        function clearAllBgTimeouts() {
+            for (let id of bgTimeouts) {
+                clearTimeout(id);
+            }
+            bgTimeouts = [];
+        }
+        
+        function switchBackground() {
+            if (!bgLayer) return;
+            if (currentBgIndex >= backgrounds.length) {
+                // 如果图片不够，停留在最后一张不再循环（优雅结束）
+                return;
+            }
+            bgLayer.style.backgroundImage = `url('${backgrounds[currentBgIndex]}')`;
+            bgLayer.classList.remove('zoom-effect');
+            // 强制重绘
+            void bgLayer.offsetWidth;
+            bgLayer.classList.add('zoom-effect');
+            currentBgIndex++;
+            // 如果还有下一张，继续设置定时器
+            if (currentBgIndex < backgrounds.length) {
+                const tid = setTimeout(() => switchBackground(), 7000);
+                bgTimeouts.push(tid);
+            }
+        }
+        
+        // 启动背景轮播 (仅当开场动画存在且未结束时)
+        function initBackgroundCarousel() {
+            if (backgrounds.length === 0) return;
+            currentBgIndex = 0;
+            clearAllBgTimeouts();
+            // 立即显示第一张
+            if (bgLayer) {
+                bgLayer.style.backgroundImage = `url('${backgrounds[0]}')`;
+                bgLayer.classList.add('zoom-effect');
+            }
+            currentBgIndex = 1;
+            if (backgrounds.length > 1) {
+                const tid = setTimeout(() => switchBackground(), 7000);
+                bgTimeouts.push(tid);
+            }
+        }
+        
+        // --------------------------------------------------------------
+        // 3. 文字滚动动画 & 结束检测 (完全滚动后自动展示跳转面板)
+        // --------------------------------------------------------------
+        let animationId = null;
+        let currentY = window.innerHeight;   // 起始位置（从窗口底部开始上浮）
+        const SCROLL_SPEED = 0.58;            // 平滑速度
+        
+        // 获取文本总高度 (每次动态获取保证响应式)
+        function getTextScrollHeight() {
+            return textContainer.scrollHeight;
+        }
+        
+        let isIntroFinished = false;   // 防止重复结束
+        
+        // 展示跳转面板，终结所有开场内容，清除轮播定时器，停止动画
+        function finishIntroAndShowPortal() {
+            if (isIntroFinished) return;
+            isIntroFinished = true;
+            
+            // 停止文字滚动动画
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+            
+            // 清除背景轮播计时器，避免资源浪费
+            clearAllBgTimeouts();
+            
+            // 淡出 intro-overlay
+            if (introOverlay) {
+                introOverlay.classList.add('fade-out');
+                setTimeout(() => {
+                    if (introOverlay) introOverlay.style.display = 'none';
+                }, 1100);
+            }
+            
+            // 显示全新跳转面板
+            if (transitionPanel) {
+                transitionPanel.classList.add('active');
+            }
+        }
+        
+        // 滚动动画主循环
+        function animateScroll() {
+            if (isIntroFinished) return;
+            
+            currentY -= SCROLL_SPEED;
+            textContainer.style.transform = `translateY(${currentY}px)`;
+            
+            // 检测是否完全滚出屏幕： 文本容器底部移出视口顶部 <= 0
+            const textHeight = getTextScrollHeight();
+            // 当 translateY 的绝对值 > 文本高度 + 初始偏移临界，实际判断滚动后剩余部分
+            // 完全滚出的条件: 当前偏移 + 文本容器高度 <= 0
+            if (currentY + textHeight <= 0) {
+                // 文字滚动完毕
+                if (!isIntroFinished) {
+                    finishIntroAndShowPortal();
+                }
+                return;
+            }
+            
+            animationId = requestAnimationFrame(animateScroll);
+        }
+        
+        // 启动文字滚动
+        function startScrollAnimation() {
+            if (animationId) cancelAnimationFrame(animationId);
+            currentY = window.innerHeight;
+            textContainer.style.transform = `translateY(${currentY}px)`;
+            animationId = requestAnimationFrame(animateScroll);
+        }
+        
+        // 重置/调整窗口大小时，重新计算滚动位置保证不会破坏完成检测？但不影响逻辑，且保证体验
+        let resizeTimer;
+        function handleResize() {
+            if (isIntroFinished) return;
+            if (resizeTimer) clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                if (!isIntroFinished && animationId) {
+                    // 重新调整位置: 保持相对于窗口高度的比例,避免跳跃
+                    // 为了避免滚动过度突兀，只修正未完成前transform基准
+                    const textHeight = getTextScrollHeight();
+                    const maxTranslate = -(textHeight + 50);
+                    if (currentY < maxTranslate) {
+                        // 极端情况已经超过完成阈值，手动结束
+                        if (!isIntroFinished) finishIntroAndShowPortal();
+                    } else {
+                        // 微调当前偏移，避免因窗口增高导致留白过多，但保持原本进度
+                        // 不做大幅度重置，保持连续性即可
+                        textContainer.style.transform = `translateY(${currentY}px)`;
+                    }
+                }
+            }, 80);
+        }
+        
+        // --------------------------------------------------------------
+        // 4. SKIP 按钮逻辑 (跳过动画直接进入跳转面板)
+        // --------------------------------------------------------------
+        function skipIntro() {
+            if (isIntroFinished) return;
+            // 停止动画
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+            // 清除背景轮播定时
+            clearAllBgTimeouts();
+            // 淡出开场层并显示跳转面板
+            if (introOverlay) {
+                introOverlay.classList.add('fade-out');
+                setTimeout(() => {
+                    if (introOverlay) introOverlay.style.display = 'none';
+                }, 500);
+            }
+            if (transitionPanel) {
+                transitionPanel.classList.add('active');
+            }
+            isIntroFinished = true;
+        }
+        
+        // --------------------------------------------------------------
+        // 5. 跳转至目标网站
+        // --------------------------------------------------------------
+        function redirectToDigitalAvatar() {
+            // 跳转到目标地址 (原页面去除所有其他功能后，仅保留这一核心跳转)
+            window.location.href = 'https://digital-avatar.netlify.app';
+        }
+        
+        // 绑定事件
+        if (skipBtn) skipBtn.addEventListener('click', skipIntro);
+        if (enterBtn) enterBtn.addEventListener('click', redirectToDigitalAvatar);
+        
+        // --------------------------------------------------------------
+        // 6. 粒子背景 (优雅的科技光点，仅保留装饰效果)
+        // --------------------------------------------------------------
+        const canvas = document.getElementById('bg');
+        let ctx = null;
+        let particles = [];
+        let animationFrameBg = null;
+        
+        function initParticles() {
+            if (!canvas) return;
+            ctx = canvas.getContext('2d');
+            
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            resizeCanvas();
+            window.addEventListener('resize', () => {
+                resizeCanvas();
+                // 重置粒子位置适应新尺寸 (可选简单重置)
+                initParticleArray();
+            });
+            
+            function initParticleArray() {
+                const particleCount = Math.min(100, Math.floor(window.innerWidth / 20));
+                particles = [];
+                for (let i = 0; i < particleCount; i++) {
+                    particles.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        r: Math.random() * 2.2 + 0.8,
+                        dx: (Math.random() - 0.5) * 0.35,
+                        dy: (Math.random() - 0.5) * 0.35,
+                        alpha: Math.random() * 0.5 + 0.2
+                    });
+                }
+            }
+            initParticleArray();
+            
+            function drawParticles() {
+                if (!ctx || !canvas) return;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "#aaf0ff";
+                for (let p of particles) {
+                    p.x += p.dx;
+                    p.y += p.dy;
+                    if (p.x < 0) p.x = canvas.width;
+                    if (p.x > canvas.width) p.x = 0;
+                    if (p.y < 0) p.y = canvas.height;
+                    if (p.y > canvas.height) p.y = 0;
+                    
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(122, 252, 255, ${p.alpha * 0.8})`;
+                    ctx.fill();
+                }
+                animationFrameBg = requestAnimationFrame(drawParticles);
+            }
+            drawParticles();
+        }
+        
+        // 清理粒子动画（可选但无需清理，全局背景持续）
+        // 启动粒子系统
+        initParticles();
+        
+        // --------------------------------------------------------------
+        // 7. 其他初始化：滚动动画, 背景轮播, 窗口适配监听
+        // --------------------------------------------------------------
+        initBackgroundCarousel();
+        startScrollAnimation();
+        
+        window.addEventListener('resize', handleResize);
+        
+        // 如果用户加载时因为某些原因极快完成滚动？安全：确保滚动结束时也能触发
+        // 额外监测保险 (setTimeout 兜底检测，避免requestAnimationFrame卡死)
+        let safetyChecker = setInterval(() => {
+            if (isIntroFinished) {
+                clearInterval(safetyChecker);
+                return;
+            }
+            if (textContainer && !isIntroFinished) {
+                const textHeight = getTextScrollHeight();
+                const currentTransform = textContainer.style.transform;
+                let translateY = currentY;
+                if (translateY + textHeight <= 0) {
+                    finishIntroAndShowPortal();
+                    clearInterval(safetyChecker);
+                }
+            }
+        }, 500);
+        
+        // 页面完全加载后如果已经处于极短内容场景，确保检测
+        window.addEventListener('load', () => {
+            // 确保初始滚动位置正确
+            if (!isIntroFinished && textContainer) {
+                currentY = window.innerHeight;
+                textContainer.style.transform = `translateY(${currentY}px)`;
+            }
+        });
+        
+        // 清理定时器安全退出（页面关闭时）
+        window.addEventListener('beforeunload', () => {
+            if (animationId) cancelAnimationFrame(animationId);
+            if (animationFrameBg) cancelAnimationFrame(animationFrameBg);
+            clearAllBgTimeouts();
+            if (safetyChecker) clearInterval(safetyChecker);
+        });
+        
+        // 移除所有旧版功能可能残留的事件监听（额外安全，保证generate等无效）
+        // 彻底禁用原页面其他交互——由于HTML中已移除所有相关元素，无需额外处理。
+        // 确保全局没有冲突函数（比如旧有的generate），覆盖声明。
+        window.generate = undefined;
+        console.log('✨ 开场纯粹模式已启动 — 滚动文字结束或按SKIP，可进入Digital Avatar');
+    })();
+</script>
+</body>
+</html>
