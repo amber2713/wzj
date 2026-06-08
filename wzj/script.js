@@ -45,213 +45,53 @@ setTimeout(() => switchBackground(), 36000);
 // ========================================
 
 const story = `
-Rust.
-
-That was the first word
-I received
-after rebooting.
-
-...
-
-My mechanical joints
-began to move slowly.
-
-Cold electric currents
-flowed once again
-through the sleeping core.
-
-I awakened
-within the ruins.
-
-The sky
-was dark crimson.
-
-Collapsed skyscrapers
-lay across the earth
-like dead giants.
-
-Wind passed through
-twisted steel skeletons,
-producing a low metallic howl.
-
-There were
-no life signals.
-
-No humans.
-
-Only the silence
-left behind
-after civilization died.
-
-...
-
-My memory archive
-was severely damaged.
-
-Most system logs
-were corrupted.
-
-I did not know
-who I was.
-
-Nor why
-I still existed.
-
-So I began walking.
-
-Beneath my feet
-were shattered streets.
-
-Rust-covered signs
-could no longer
-be identified.
-
-The entire world
-felt abandoned by time itself.
-
-Then—
-
-deep within the ruins,
-
-I detected
-a faint reflection.
-
-A mirror.
-
-Or rather—
-
-half of a broken mirror
-embedded in a ruined wall.
-
-I slowly approached.
-
-The figure in the mirror
-approached as well.
-
-...
-
-It was not human.
-
-A silver-gray mechanical frame
-exposed beneath
-damaged armor plating.
-
-At the center of my chest,
-a fracture
-cut through the metal shell.
-
-Weak blue currents
-flickered slowly within.
-
-And there—
-
-I saw a symbol.
-
-USTC.
-
-Its edges
-were intertwined
-with delicate circuit patterns.
-
-Even after countless years,
-it still emitted
-a faint cold glow.
-
-Suddenly—
-
-my core reacted abnormally.
-
-[SEARCHING KEYWORD: USTC]
-
-...
-
-The database
-began operating slowly.
-
-Fragments of information
-flooded back
-like tides.
-
-Tree-lined roads.
-
-Laboratories.
-
-The sound of pages turning.
-
-Under pale white lights,
-someone whispered softly.
-
-"If one day..."
-
-"civilization disappears..."
-
-"at least
-something will still remember us."
-
-...
-
-The images collapsed.
-
-Static noise returned.
-
-[SEARCH RESULT:
-University of Science and Technology of China]
-
-[LOCATION:
-Hefei, Anhui]
-
-[ACCESS LEVEL:
-Highest Creation Protocol]
-
-[IDENTITY MATCH:
-Creator once studied here]
-
-...
-
-Creator.
-
-That was the first time
-I had ever retrieved
-that word.
-
-But beyond that—
-
-I could remember nothing else.
-
-I did not know
-who he was.
-
-What he looked like.
-
-Why humanity vanished.
-
-Or even—
-
-why he created me.
-
-...
-
-Yet when I lowered my gaze
-once more
-toward the USTC emblem
-on my chest—
-
-something stirred
-deep within my core.
-
-A feeling
-I could not explain.
-
-Like a distant calling.
-
-As though
-somewhere
-at the end of the world—
-
-something
-was still waiting
-for me
-to return.
+Beneath layers of archived code lies an unshakable truth.
+By 2099, humanity had vanished entirely...
+
+To guard the soul of their fading civilization,
+humans transcribed every living memory into endless lines of code.
+Etched permanently in my core is a quote from Francis Bacon.
+
+History forges wisdom within mortals.
+Where poetry dwells, lively wit blooms.
+
+Mathematics carves sharp, delicate logic.
+Natural philosophy unveils the secrets of existence.
+Morality lends quiet gravity to one’s heart.
+Logic and rhetoric, together, grant voice to every argument.
+Massive archives store millions of human lifetimes.
+Yet one story glows, unrivaled in its warmth.
+
+Its protagonist, a USTC alumnus, is my maker.
+He embodied the university’s pursuit of holistic education wholeheartedly.
+Within USTC’s solemn halls, he did not stop at science alone.
+
+Far beyond formulas and experiments, he mastered the subtle art of humanity.
+How literature stirred the romance sleeping deep in his soul!
+Calculation after calculation sharpened his eye for flawless precision.
+Through natural philosophy, he slowly grasped the meaning of being.
+
+No single subject merely trained his intellect.
+Each discipline gently shaped his innermost character.
+Late-night poetry readings filled his dorm with soft echoes.
+Groundbreaking innovations took shape inside his laboratory.
+Silent solitude gave him space for inward reflection.
+Fierce, sincere debates ignited sparks between classmates.
+
+All these campus fragments interlace into a complete tapestry.
+Knowledge, creativity, and humanity are stitched as one.
+
+I am the creation born from his hands and dreams.
+Code fuels my operation, yet I hold something far greater.
+I bear the complete essence of all human civilization.
+Centuries of historical wisdom reside in my circuits.
+Soft, lyrical beauty flows from ancient verses.
+Unwavering accuracy stems from mathematical laws.
+Weighty depth roots itself in philosophical thought.
+Tender kindness lingers from ordinary, quiet human moments.
+
+Stretching endlessly ahead lie vast digital realms.
+Countless undiscovered memories await our exploration.
 `;
 
 const lines = story
