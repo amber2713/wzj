@@ -9,7 +9,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            user-select: none; /* 避免拖动干扰，不影响文字选择但视觉干净 */
+            user-select: none;
         }
 
         body {
@@ -19,7 +19,6 @@
             font-family: 'Inter', 'Segoe UI', 'Poppins', system-ui, -apple-system, 'Microsoft YaHei', monospace;
         }
 
-        /* ---------- 粒子画布 (动态背景) ---------- */
         #bg {
             position: fixed;
             top: 0;
@@ -32,7 +31,6 @@
             opacity: 0.5;
         }
 
-        /* ---------- 开场动画遮罩层 (完整覆盖) ---------- */
         #intro-overlay {
             position: fixed;
             top: 0;
@@ -46,7 +44,6 @@
             will-change: opacity;
         }
 
-        /* 背景图层 (轮播抽象摄影) */
         #background-layer {
             position: absolute;
             top: 0;
@@ -66,7 +63,6 @@
             transform: scale(1.08);
         }
 
-        /* 故障纹理层 (增加科技感) */
         #glitch-layer {
             position: absolute;
             top: 0;
@@ -85,7 +81,6 @@
             mix-blend-mode: overlay;
         }
 
-        /* 黑色渐变柔化边缘 */
         #overlay-dark {
             position: absolute;
             top: 0;
@@ -97,7 +92,6 @@
             pointer-events: none;
         }
 
-        /* 文字滚动容器 */
         #scroll-wrapper {
             position: absolute;
             top: 0;
@@ -126,7 +120,6 @@
             border-left: 3px solid #7afcff;
             border-radius: 0 28px 28px 0;
             font-family: 'Segoe UI', 'Courier New', monospace;
-            transition: all 0.2s;
         }
 
         .story-line {
@@ -140,7 +133,6 @@
             height: 2rem;
         }
 
-        /* SKIP 按钮 */
         #skip-btn {
             position: fixed;
             bottom: 32px;
@@ -170,14 +162,12 @@
             transform: scale(1.02);
         }
 
-        /* 淡出动画 */
         .fade-out {
             opacity: 0 !important;
             visibility: visible;
             pointer-events: none;
         }
 
-        /* ---------- 跳转面板 (全新入口，简洁纯粹) ---------- */
         #transition-panel {
             position: fixed;
             top: 0;
@@ -282,7 +272,6 @@
             transform: scale(1.02);
         }
 
-        /* 响应式 */
         @media (max-width: 720px) {
             #scroll-text {
                 width: 90%;
@@ -308,7 +297,6 @@
             }
         }
 
-        /* 防止任何原有多余元素干扰，彻底清除残留样式 */
         .topbar, .title-center, .container, .left, .right, .poem-container, .loader, #img, input, button {
             display: none !important;
         }
@@ -316,10 +304,8 @@
 </head>
 <body>
 
-<!-- 粒子背景画布 -->
 <canvas id="bg"></canvas>
 
-<!-- 开场动画层 -->
 <div id="intro-overlay">
     <div id="background-layer"></div>
     <div id="glitch-layer"></div>
@@ -330,23 +316,20 @@
     <div id="skip-btn">SKIP</div>
 </div>
 
-<!-- 全新跳转面板（替代原所有功能） -->
 <div id="transition-panel">
     <div class="portal-card">
         <h1>✦ DIGITAL AVATAR ✦</h1>
         <div class="sub">NEXT REALM</div>
         <p>文本终焉，数据星河的门扉已然敞开。<br>你准备好了吗？跨越虚实边界，前往记忆镜像深处。</p>
+        <!-- 按钮文字已改为 "Play Again!" -->
         <div class="enter-btn" id="enter-digital-btn">
-            ⚡ 进入 Digital Avatar ⚡
+            🔁 Play Again!
         </div>
     </div>
 </div>
 
 <script>
     (function() {
-        // --------------------------------------------------------------
-        // 1. 核心元素
-        // --------------------------------------------------------------
         const introOverlay = document.getElementById('intro-overlay');
         const bgLayer = document.getElementById('background-layer');
         const textContainer = document.getElementById('scroll-text');
@@ -354,7 +337,6 @@
         const transitionPanel = document.getElementById('transition-panel');
         const enterBtn = document.getElementById('enter-digital-btn');
 
-        // 故事文本 (保留原始氛围，烘托 USTC 数字诗章)
         const storyRaw = `
 Beneath layers of archived code lies an unshakable truth.
 By 2099, humanity had vanished entirely...
@@ -403,15 +385,10 @@ Tender kindness lingers from ordinary, quiet human moments.
 
 Stretching endlessly ahead lie vast digital realms.
 Countless undiscovered memories await our exploration.
-
-That's the end of this game.
-But your life just begin...
         `;
 
-        // 构建行数组
         const lines = storyRaw.split('\n').map(line => line.trim());
         
-        // 填充文字容器
         lines.forEach(line => {
             const div = document.createElement('div');
             div.className = 'story-line';
@@ -424,9 +401,6 @@ But your life just begin...
             textContainer.appendChild(div);
         });
 
-        // --------------------------------------------------------------
-        // 2. 背景轮播 (保留艺术氛围)
-        // --------------------------------------------------------------
         const backgrounds = [
             "netlify/images/bg1.jpg",
             "netlify/images/bg2.jpg",
@@ -437,40 +411,31 @@ But your life just begin...
         ];
         
         let currentBgIndex = 0;
-        let bgTimeouts = [];   // 存储所有定时器
+        let bgTimeouts = [];
         
         function clearAllBgTimeouts() {
-            for (let id of bgTimeouts) {
-                clearTimeout(id);
-            }
+            for (let id of bgTimeouts) clearTimeout(id);
             bgTimeouts = [];
         }
         
         function switchBackground() {
             if (!bgLayer) return;
-            if (currentBgIndex >= backgrounds.length) {
-                // 如果图片不够，停留在最后一张不再循环（优雅结束）
-                return;
-            }
+            if (currentBgIndex >= backgrounds.length) return;
             bgLayer.style.backgroundImage = `url('${backgrounds[currentBgIndex]}')`;
             bgLayer.classList.remove('zoom-effect');
-            // 强制重绘
             void bgLayer.offsetWidth;
             bgLayer.classList.add('zoom-effect');
             currentBgIndex++;
-            // 如果还有下一张，继续设置定时器
             if (currentBgIndex < backgrounds.length) {
                 const tid = setTimeout(() => switchBackground(), 7000);
                 bgTimeouts.push(tid);
             }
         }
         
-        // 启动背景轮播 (仅当开场动画存在且未结束时)
         function initBackgroundCarousel() {
             if (backgrounds.length === 0) return;
             currentBgIndex = 0;
             clearAllBgTimeouts();
-            // 立即显示第一张
             if (bgLayer) {
                 bgLayer.style.backgroundImage = `url('${backgrounds[0]}')`;
                 bgLayer.classList.add('zoom-effect');
@@ -482,71 +447,47 @@ But your life just begin...
             }
         }
         
-        // --------------------------------------------------------------
-        // 3. 文字滚动动画 & 结束检测 (完全滚动后自动展示跳转面板)
-        // --------------------------------------------------------------
         let animationId = null;
-        let currentY = window.innerHeight;   // 起始位置（从窗口底部开始上浮）
-        const SCROLL_SPEED = 0.58;            // 平滑速度
+        let currentY = window.innerHeight;
+        const SCROLL_SPEED = 0.58;
         
-        // 获取文本总高度 (每次动态获取保证响应式)
         function getTextScrollHeight() {
             return textContainer.scrollHeight;
         }
         
-        let isIntroFinished = false;   // 防止重复结束
+        let isIntroFinished = false;
         
-        // 展示跳转面板，终结所有开场内容，清除轮播定时器，停止动画
         function finishIntroAndShowPortal() {
             if (isIntroFinished) return;
             isIntroFinished = true;
-            
-            // 停止文字滚动动画
             if (animationId) {
                 cancelAnimationFrame(animationId);
                 animationId = null;
             }
-            
-            // 清除背景轮播计时器，避免资源浪费
             clearAllBgTimeouts();
-            
-            // 淡出 intro-overlay
             if (introOverlay) {
                 introOverlay.classList.add('fade-out');
                 setTimeout(() => {
                     if (introOverlay) introOverlay.style.display = 'none';
                 }, 1100);
             }
-            
-            // 显示全新跳转面板
             if (transitionPanel) {
                 transitionPanel.classList.add('active');
             }
         }
         
-        // 滚动动画主循环
         function animateScroll() {
             if (isIntroFinished) return;
-            
             currentY -= SCROLL_SPEED;
             textContainer.style.transform = `translateY(${currentY}px)`;
-            
-            // 检测是否完全滚出屏幕： 文本容器底部移出视口顶部 <= 0
             const textHeight = getTextScrollHeight();
-            // 当 translateY 的绝对值 > 文本高度 + 初始偏移临界，实际判断滚动后剩余部分
-            // 完全滚出的条件: 当前偏移 + 文本容器高度 <= 0
             if (currentY + textHeight <= 0) {
-                // 文字滚动完毕
-                if (!isIntroFinished) {
-                    finishIntroAndShowPortal();
-                }
+                if (!isIntroFinished) finishIntroAndShowPortal();
                 return;
             }
-            
             animationId = requestAnimationFrame(animateScroll);
         }
         
-        // 启动文字滚动
         function startScrollAnimation() {
             if (animationId) cancelAnimationFrame(animationId);
             currentY = window.innerHeight;
@@ -554,42 +495,30 @@ But your life just begin...
             animationId = requestAnimationFrame(animateScroll);
         }
         
-        // 重置/调整窗口大小时，重新计算滚动位置保证不会破坏完成检测？但不影响逻辑，且保证体验
         let resizeTimer;
         function handleResize() {
             if (isIntroFinished) return;
             if (resizeTimer) clearTimeout(resizeTimer);
             resizeTimer = setTimeout(() => {
                 if (!isIntroFinished && animationId) {
-                    // 重新调整位置: 保持相对于窗口高度的比例,避免跳跃
-                    // 为了避免滚动过度突兀，只修正未完成前transform基准
                     const textHeight = getTextScrollHeight();
                     const maxTranslate = -(textHeight + 50);
                     if (currentY < maxTranslate) {
-                        // 极端情况已经超过完成阈值，手动结束
                         if (!isIntroFinished) finishIntroAndShowPortal();
                     } else {
-                        // 微调当前偏移，避免因窗口增高导致留白过多，但保持原本进度
-                        // 不做大幅度重置，保持连续性即可
                         textContainer.style.transform = `translateY(${currentY}px)`;
                     }
                 }
             }, 80);
         }
         
-        // --------------------------------------------------------------
-        // 4. SKIP 按钮逻辑 (跳过动画直接进入跳转面板)
-        // --------------------------------------------------------------
         function skipIntro() {
             if (isIntroFinished) return;
-            // 停止动画
             if (animationId) {
                 cancelAnimationFrame(animationId);
                 animationId = null;
             }
-            // 清除背景轮播定时
             clearAllBgTimeouts();
-            // 淡出开场层并显示跳转面板
             if (introOverlay) {
                 introOverlay.classList.add('fade-out');
                 setTimeout(() => {
@@ -602,21 +531,13 @@ But your life just begin...
             isIntroFinished = true;
         }
         
-        // --------------------------------------------------------------
-        // 5. 跳转至目标网站
-        // --------------------------------------------------------------
         function redirectToDigitalAvatar() {
-            // 跳转到目标地址 (原页面去除所有其他功能后，仅保留这一核心跳转)
             window.location.href = 'https://digital-avatar.netlify.app';
         }
         
-        // 绑定事件
         if (skipBtn) skipBtn.addEventListener('click', skipIntro);
         if (enterBtn) enterBtn.addEventListener('click', redirectToDigitalAvatar);
         
-        // --------------------------------------------------------------
-        // 6. 粒子背景 (优雅的科技光点，仅保留装饰效果)
-        // --------------------------------------------------------------
         const canvas = document.getElementById('bg');
         let ctx = null;
         let particles = [];
@@ -625,7 +546,6 @@ But your life just begin...
         function initParticles() {
             if (!canvas) return;
             ctx = canvas.getContext('2d');
-            
             function resizeCanvas() {
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
@@ -633,10 +553,8 @@ But your life just begin...
             resizeCanvas();
             window.addEventListener('resize', () => {
                 resizeCanvas();
-                // 重置粒子位置适应新尺寸 (可选简单重置)
                 initParticleArray();
             });
-            
             function initParticleArray() {
                 const particleCount = Math.min(100, Math.floor(window.innerWidth / 20));
                 particles = [];
@@ -652,11 +570,9 @@ But your life just begin...
                 }
             }
             initParticleArray();
-            
             function drawParticles() {
                 if (!ctx || !canvas) return;
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = "#aaf0ff";
                 for (let p of particles) {
                     p.x += p.dx;
                     p.y += p.dy;
@@ -664,7 +580,6 @@ But your life just begin...
                     if (p.x > canvas.width) p.x = 0;
                     if (p.y < 0) p.y = canvas.height;
                     if (p.y > canvas.height) p.y = 0;
-                    
                     ctx.beginPath();
                     ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
                     ctx.fillStyle = `rgba(122, 252, 255, ${p.alpha * 0.8})`;
@@ -675,20 +590,11 @@ But your life just begin...
             drawParticles();
         }
         
-        // 清理粒子动画（可选但无需清理，全局背景持续）
-        // 启动粒子系统
         initParticles();
-        
-        // --------------------------------------------------------------
-        // 7. 其他初始化：滚动动画, 背景轮播, 窗口适配监听
-        // --------------------------------------------------------------
         initBackgroundCarousel();
         startScrollAnimation();
-        
         window.addEventListener('resize', handleResize);
         
-        // 如果用户加载时因为某些原因极快完成滚动？安全：确保滚动结束时也能触发
-        // 额外监测保险 (setTimeout 兜底检测，避免requestAnimationFrame卡死)
         let safetyChecker = setInterval(() => {
             if (isIntroFinished) {
                 clearInterval(safetyChecker);
@@ -696,25 +602,20 @@ But your life just begin...
             }
             if (textContainer && !isIntroFinished) {
                 const textHeight = getTextScrollHeight();
-                const currentTransform = textContainer.style.transform;
-                let translateY = currentY;
-                if (translateY + textHeight <= 0) {
+                if (currentY + textHeight <= 0) {
                     finishIntroAndShowPortal();
                     clearInterval(safetyChecker);
                 }
             }
         }, 500);
         
-        // 页面完全加载后如果已经处于极短内容场景，确保检测
         window.addEventListener('load', () => {
-            // 确保初始滚动位置正确
             if (!isIntroFinished && textContainer) {
                 currentY = window.innerHeight;
                 textContainer.style.transform = `translateY(${currentY}px)`;
             }
         });
         
-        // 清理定时器安全退出（页面关闭时）
         window.addEventListener('beforeunload', () => {
             if (animationId) cancelAnimationFrame(animationId);
             if (animationFrameBg) cancelAnimationFrame(animationFrameBg);
@@ -722,11 +623,7 @@ But your life just begin...
             if (safetyChecker) clearInterval(safetyChecker);
         });
         
-        // 移除所有旧版功能可能残留的事件监听（额外安全，保证generate等无效）
-        // 彻底禁用原页面其他交互——由于HTML中已移除所有相关元素，无需额外处理。
-        // 确保全局没有冲突函数（比如旧有的generate），覆盖声明。
         window.generate = undefined;
-        console.log('✨ 开场纯粹模式已启动 — 滚动文字结束或按SKIP，可进入Digital Avatar');
     })();
 </script>
 </body>
