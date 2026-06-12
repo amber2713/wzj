@@ -55,8 +55,8 @@
             background-position: center 30%;
             background-repeat: no-repeat;
             filter: brightness(0.4) contrast(1.1) blur(1px);
-            transform: scale(1);
-            transition: transform 8.6s ease-out;  /* 慢镜头效果: 原6s / 0.7 ≈ 8.57s */
+            /* 图片缩放过渡时长根据1.5倍速加快: 原8.6s → 8.6/1.5 = 5.733s，提升轮转光效节奏 */
+            transition: transform 5.733s ease-out;
             will-change: transform;
             z-index: 1;
         }
@@ -133,7 +133,6 @@
             border-radius: 0 40px 40px 0;
             font-family: 'Cambria', 'Georgia', 'Times New Roman', 'Palatino', 'Segoe UI', monospace;
             transition: all 0.2s ease;
-            /* 趣味特效: 呼吸光晕 + 动态边框流光 */
             animation: textBreathingGlow 3s infinite ease-in-out;
             box-shadow: 0 0 12px rgba(122, 252, 255, 0.2);
         }
@@ -409,7 +408,7 @@
     </div>
     <div id="skip-btn">⏎ SKIP</div>
 </div>
-<!-- 新增动态鼠标光晕特效 -->
+<!-- 动态鼠标光晕特效 -->
 <div class="mouse-glow" id="mouseGlow"></div>
 
 <div id="transition-panel">
@@ -433,7 +432,12 @@
         const enterBtn = document.getElementById('enter-digital-btn');
         const glowElement = document.getElementById('mouseGlow');
 
-        // ---------- 炫酷鼠标跟随光晕特效 ----------
+        // ---------- 图片速度提升1.5倍核心参数 ----------
+        // 原背景切换间隔10s → 放快1.5倍 => 间隔 = 10000 / 1.5 ≈ 6667ms
+        const BG_SPEED_FACTOR = 1.5;
+        const BG_INTERVAL_MS = Math.round(10000 / BG_SPEED_FACTOR);   // 6667ms (约6.67秒，切换明显加快)
+        
+        // 炫酷鼠标跟随光晕特效
         if (glowElement) {
             let mouseX = -1000, mouseY = -1000;
             function updateGlowPosition() {
@@ -445,7 +449,6 @@
             window.addEventListener('mousemove', (e) => {
                 mouseX = e.clientX;
                 mouseY = e.clientY;
-                // 增加轻微延迟感已经通过rAF实现平滑
             });
             updateGlowPosition();
         }
@@ -489,7 +492,7 @@ Ahead lie digital realms of memories awaiting exploration.
             textContainer.appendChild(div);
         });
 
-        // 背景图列表 (共6张)
+        // 背景图列表 (共6张，保持原有)
         const backgrounds = [
             "netlify/images/bg1.png",
             "netlify/images/bg2.png",
@@ -507,17 +510,17 @@ Ahead lie digital realms of memories awaiting exploration.
             bgTimeouts = [];
         }
         
-        // 切换速度慢为原来的0.7倍: 原间隔7s → 现在10s (慢镜头)
+        // 切换背景 (加快1.5倍，切换延迟使用新间隔)
         function switchBackground() {
             if (!bgLayer) return;
             if (currentBgIndex >= backgrounds.length) return;
             bgLayer.style.backgroundImage = `url('${backgrounds[currentBgIndex]}')`;
             bgLayer.classList.remove('zoom-effect');
-            void bgLayer.offsetWidth;
+            void bgLayer.offsetWidth;   // 强制重绘
             bgLayer.classList.add('zoom-effect');
             currentBgIndex++;
             if (currentBgIndex < backgrounds.length) {
-                const tid = setTimeout(() => switchBackground(), 10000);
+                const tid = setTimeout(() => switchBackground(), BG_INTERVAL_MS);
                 bgTimeouts.push(tid);
             }
         }
@@ -532,14 +535,14 @@ Ahead lie digital realms of memories awaiting exploration.
             }
             currentBgIndex = 1;
             if (backgrounds.length > 1) {
-                const tid = setTimeout(() => switchBackground(), 10000);
+                const tid = setTimeout(() => switchBackground(), BG_INTERVAL_MS);
                 bgTimeouts.push(tid);
             }
         }
         
         let animationId = null;
         let currentY = window.innerHeight;
-        // 文字滚动速度: 原0.58 → 加快1.4倍 => 0.58 * 1.4 = 0.812
+        // 文字滚动速度保持不变(快节奏叙事，原1.4倍速率未改动)
         const SCROLL_SPEED = 0.812;
         
         function getTextScrollHeight() {
@@ -673,13 +676,11 @@ Ahead lie digital realms of memories awaiting exploration.
                     if (p.x > canvas.width) p.x = 0;
                     if (p.y < 0) p.y = canvas.height;
                     if (p.y > canvas.height) p.y = 0;
-                    // 动态闪烁效果
                     const flicker = 0.6 + Math.sin(Date.now() * 0.002 + p.pulse) * 0.3;
                     ctx.beginPath();
                     ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
                     ctx.fillStyle = `rgba(122, 220, 255, ${p.alpha * flicker * 0.9})`;
                     ctx.fill();
-                    // 微光晕
                     ctx.shadowBlur = 4;
                     ctx.shadowColor = "#7afcff";
                 }
@@ -690,8 +691,9 @@ Ahead lie digital realms of memories awaiting exploration.
         }
         
         initParticles();
-        initBackgroundCarousel();   // 慢速图片切换 (0.7倍速率)
-        startScrollAnimation();     // 快速文本滚动 (1.4倍速率)
+        // 图片轮播加快1.5倍: 背景切换更快，过渡缩放动画已经同步提升至5.733s (CSS层面完成)
+        initBackgroundCarousel();   
+        startScrollAnimation();     // 文本滚动维持快速叙事节奏
         
         window.addEventListener('resize', handleResize);
         
@@ -725,6 +727,9 @@ Ahead lie digital realms of memories awaiting exploration.
         });
         
         window.generate = undefined;
+        
+        // 可选额外: 动态提升沉浸感，日志输出提速标识 (控制台可忽略)
+        console.log(`[Digital USTC] 背景图片切换速度已提升至1.5倍: 间隔${BG_INTERVAL_MS}ms, 缩放过渡5.733s`);
     })();
 </script>
 </body>
