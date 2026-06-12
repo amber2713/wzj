@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Digital USTC · 序章 | 慢镜轮转 · 疾语序诗</title>
+    <title>Digital USTC · 序章 | 加速轮转 · 疾语序诗</title>
     <style>
         * {
             margin: 0;
@@ -54,8 +54,8 @@
             background-position: center 30%;
             background-repeat: no-repeat;
             filter: brightness(0.4) contrast(1.1) blur(1px);
-            /* 图片缩放过渡加快1.5倍 (原8.6s → 5.733s) */
-            transition: transform 5.733s ease-out;
+            /* 图片缩放过渡速度：原8.6s → 提升至2倍速 => 4.3s */
+            transition: transform 4.3s ease-out;
             will-change: transform;
             z-index: 1;
         }
@@ -64,7 +64,7 @@
             transform: scale(1.08);
         }
 
-        /* 趣味特效: 故障纹理增强层 */
+        /* 趣味特效: 故障纹理增强层 (保留，无闪动文字效果) */
         #glitch-layer {
             position: absolute;
             top: 0;
@@ -112,7 +112,7 @@
             pointer-events: none;
         }
 
-        /* 主文本容器 */
+        /* 主文本容器 —— 彻底移除闪动光效：无呼吸动画，无流光扫线 */
         #scroll-text {
             position: relative;
             width: 80%;
@@ -123,7 +123,7 @@
             font-size: 1.85rem;
             line-height: 2.6rem;
             font-weight: 460;
-            text-shadow: 0 0 6px rgba(0, 200, 255, 0.4);
+            text-shadow: 0 0 6px rgba(0, 200, 255, 0.3);  /* 静态柔和阴影，无动画 */
             letter-spacing: 0.02em;
             backdrop-filter: blur(4px);
             background: rgba(8, 12, 24, 0.45);
@@ -131,59 +131,10 @@
             border-radius: 0 40px 40px 0;
             font-family: 'Cambria', 'Georgia', 'Times New Roman', 'Palatino', 'Segoe UI', monospace;
             transition: all 0.2s ease;
-            animation: textBreathingGlow 3s infinite ease-in-out;
-            box-shadow: 0 0 12px rgba(122, 252, 255, 0.2);
+            box-shadow: 0 0 12px rgba(122, 252, 255, 0.2); /* 静态边框光晕，无动态闪烁 */
         }
 
-        @keyframes textBreathingGlow {
-            0% {
-                text-shadow: 0 0 4px rgba(122, 252, 255, 0.3);
-                box-shadow: 0 0 8px rgba(122, 252, 255, 0.2);
-                background: rgba(8, 12, 24, 0.45);
-            }
-            50% {
-                text-shadow: 0 0 12px rgba(122, 252, 255, 0.7);
-                box-shadow: 0 0 22px rgba(122, 252, 255, 0.4);
-                background: rgba(15, 20, 35, 0.55);
-            }
-            100% {
-                text-shadow: 0 0 4px rgba(122, 252, 255, 0.3);
-                box-shadow: 0 0 8px rgba(122, 252, 255, 0.2);
-                background: rgba(8, 12, 24, 0.45);
-            }
-        }
-
-        #scroll-text::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border-radius: 0 40px 40px 0;
-            pointer-events: none;
-            background: linear-gradient(
-                120deg,
-                transparent 0%,
-                rgba(122, 252, 255, 0.25) 30%,
-                rgba(0, 210, 255, 0.4) 50%,
-                rgba(122, 252, 255, 0.25) 70%,
-                transparent 100%
-            );
-            background-size: 200% 100%;
-            animation: borderFlowingLight 4s infinite linear;
-            mix-blend-mode: overlay;
-        }
-
-        @keyframes borderFlowingLight {
-            0% {
-                background-position: 100% 0;
-            }
-            100% {
-                background-position: -100% 0;
-            }
-        }
-
+        /* 删除所有文字呼吸和流光动画 */
         .story-line {
             margin-bottom: 1.1rem;
             opacity: 0.94;
@@ -335,7 +286,7 @@
             transform: scale(1.02);
         }
 
-        /* ========= 鼠标光效 - 彻底解决遮挡问题 ========= */
+        /* 鼠标光效 - 超高层级，永不被图片遮挡 */
         .mouse-glow {
             position: fixed;
             top: 0;
@@ -345,7 +296,6 @@
             background: radial-gradient(circle, rgba(122, 252, 255, 0.45) 0%, rgba(0, 210, 240, 0.2) 35%, rgba(0, 0, 0, 0) 70%);
             border-radius: 50%;
             pointer-events: none;
-            /* 超高层级，确保覆盖所有图片和背景层 */
             z-index: 99999 !important;
             transform: translate(-50%, -50%);
             filter: blur(28px);
@@ -404,7 +354,7 @@
     </div>
     <div id="skip-btn">⏎ SKIP</div>
 </div>
-<!-- 鼠标光晕：独立、超高z-index，永远悬浮在最前层，不被图片遮挡 -->
+<!-- 鼠标光晕：独立超高Z-index，不受图片影响 -->
 <div class="mouse-glow" id="mouseGlow"></div>
 
 <div id="transition-panel">
@@ -428,16 +378,17 @@
         const enterBtn = document.getElementById('enter-digital-btn');
         const glowElement = document.getElementById('mouseGlow');
 
-        // ---------- 图片切换速度提升1.5倍 (核心调整) ----------
-        // 原背景切换间隔10s → 放快1.5倍 => 6667ms
-        const BG_SPEED_FACTOR = 1.5;
-        const BG_INTERVAL_MS = Math.round(10000 / BG_SPEED_FACTOR);   // 6667ms
-        // 缩放过渡在CSS中已设置为5.733s (8.6s/1.5)
+        // ---------- 图片切换速度再次提升：原10s间隔 → 加速至2倍速 (5s间隔) ----------
+        // 同时CSS中的缩放过渡已设为4.3s (原8.6s的一半)
+        const BG_SPEED_FACTOR = 2.0;      // 2倍速
+        const BG_INTERVAL_MS = 5000;      // 5秒切换一次，更快节奏
+        
+        // ---------- 文字滚动速度提升：原0.812 → 增加至1.35 (约66%加速) ----------
+        const SCROLL_SPEED = 1.35;         // 更快浮现叙事
 
-        // 炫酷鼠标跟随光晕特效 (增强流畅度，且绝对不被遮挡)
+        // 炫酷鼠标跟随光晕特效 (始终最前)
         if (glowElement) {
             let mouseX = -1000, mouseY = -1000;
-            let rafActive = true;
             function updateGlowPosition() {
                 if (!glowElement) return;
                 glowElement.style.transform = `translate(${mouseX}px, ${mouseY}px)`;
@@ -507,7 +458,7 @@ Ahead lie digital realms of memories awaiting exploration.
             bgTimeouts = [];
         }
         
-        // 切换背景 (加快1.5倍)
+        // 切换背景 (加速至5秒间隔)
         function switchBackground() {
             if (!bgLayer) return;
             if (currentBgIndex >= backgrounds.length) return;
@@ -539,8 +490,6 @@ Ahead lie digital realms of memories awaiting exploration.
         
         let animationId = null;
         let currentY = window.innerHeight;
-        // 文字滚动速度 (快速叙事)
-        const SCROLL_SPEED = 0.812;
         
         function getTextScrollHeight() {
             return textContainer.scrollHeight;
@@ -688,9 +637,9 @@ Ahead lie digital realms of memories awaiting exploration.
         }
         
         initParticles();
-        // 背景轮播加快1.5倍
+        // 背景轮播采用新速度 (5s间隔)
         initBackgroundCarousel();   
-        startScrollAnimation();     
+        startScrollAnimation();     // 文字滚动速度提升至1.35
         
         window.addEventListener('resize', handleResize);
         
@@ -725,7 +674,7 @@ Ahead lie digital realms of memories awaiting exploration.
         
         window.generate = undefined;
         
-        console.log(`[Digital USTC] 鼠标光晕已设为最高层级，背景切换速度提升1.5倍: 间隔${BG_INTERVAL_MS}ms`);
+        console.log(`[Digital USTC] 文字闪动光效已完全移除 | 文字滚动速度提升至${SCROLL_SPEED} | 图片切换速度提升至${BG_INTERVAL_MS}ms (缩放过渡4.3s)`);
     })();
 </script>
 </body>
