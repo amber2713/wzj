@@ -16,7 +16,6 @@
             background: #0a0c12;
             min-height: 100vh;
             overflow-x: hidden;
-            /* 主字体设置为 Cambria，优雅衬线体，同时保留科技感回退 */
             font-family: 'Cambria', 'Georgia', 'Times New Roman', 'Palatino', 'Segoe UI', system-ui, monospace;
         }
 
@@ -55,7 +54,7 @@
             background-position: center 30%;
             background-repeat: no-repeat;
             filter: brightness(0.4) contrast(1.1) blur(1px);
-            /* 图片缩放过渡时长根据1.5倍速加快: 原8.6s → 8.6/1.5 = 5.733s，提升轮转光效节奏 */
+            /* 图片缩放过渡加快1.5倍 (原8.6s → 5.733s) */
             transition: transform 5.733s ease-out;
             will-change: transform;
             z-index: 1;
@@ -65,7 +64,7 @@
             transform: scale(1.08);
         }
 
-        /* 趣味特效: 故障纹理增强层 (细微动态) */
+        /* 趣味特效: 故障纹理增强层 */
         #glitch-layer {
             position: absolute;
             top: 0;
@@ -113,7 +112,7 @@
             pointer-events: none;
         }
 
-        /* 主文本容器 —— 字体放大 + Cambria 族 + 新增光效边框动画 */
+        /* 主文本容器 */
         #scroll-text {
             position: relative;
             width: 80%;
@@ -121,7 +120,6 @@
             margin: 0 auto;
             padding: 2.2rem 2rem;
             color: #eef5ff;
-            /* 字体明显放大 原1.45rem → 1.85rem (pc舒适阅读) */
             font-size: 1.85rem;
             line-height: 2.6rem;
             font-weight: 460;
@@ -137,7 +135,6 @@
             box-shadow: 0 0 12px rgba(122, 252, 255, 0.2);
         }
 
-        /* 呼吸光晕特效 */
         @keyframes textBreathingGlow {
             0% {
                 text-shadow: 0 0 4px rgba(122, 252, 255, 0.3);
@@ -156,7 +153,6 @@
             }
         }
 
-        /* 边框流光扫线动画 (科幻感) */
         #scroll-text::after {
             content: '';
             position: absolute;
@@ -193,15 +189,13 @@
             opacity: 0.94;
             word-break: break-word;
             white-space: normal;
-            transition: transform 0.2s ease, text-shadow 0.2s;
         }
 
-        /* 趣味特效: 每行文字悬停有轻微放大效果(仅当鼠标可到达, 由于父容器pointer-events: none, 这里不生效，改为滚动时不会触发，但为了视觉效果可忽略，但给一个静态微动感就不错) 不过可以通过全局hover微妙变化，考虑到wrapper穿透，不做额外处理。但加上一个微动画：滚动时出现扫描线残留 */
         .story-space {
             height: 2rem;
         }
 
-        /* SKIP 按钮保持原有风格，稍微调大 */
+        /* SKIP 按钮 */
         #skip-btn {
             position: fixed;
             bottom: 32px;
@@ -341,22 +335,24 @@
             transform: scale(1.02);
         }
 
-        /* 趣味特效: 鼠标跟随动态光晕 (科技灵能场) */
+        /* ========= 鼠标光效 - 彻底解决遮挡问题 ========= */
         .mouse-glow {
             position: fixed;
             top: 0;
             left: 0;
-            width: 380px;
-            height: 380px;
-            background: radial-gradient(circle, rgba(122, 252, 255, 0.25) 0%, rgba(0, 180, 230, 0.08) 40%, rgba(0, 0, 0, 0) 70%);
+            width: 460px;
+            height: 460px;
+            background: radial-gradient(circle, rgba(122, 252, 255, 0.45) 0%, rgba(0, 210, 240, 0.2) 35%, rgba(0, 0, 0, 0) 70%);
             border-radius: 50%;
             pointer-events: none;
-            z-index: 999;
+            /* 超高层级，确保覆盖所有图片和背景层 */
+            z-index: 99999 !important;
             transform: translate(-50%, -50%);
-            filter: blur(25px);
-            transition: transform 0.08s linear;
+            filter: blur(28px);
+            transition: transform 0.05s linear;
             mix-blend-mode: screen;
             will-change: transform;
+            opacity: 0.95;
         }
 
         @media (max-width: 720px) {
@@ -383,14 +379,14 @@
                 font-size: 0.8rem;
             }
             .mouse-glow {
-                width: 240px;
-                height: 240px;
-                filter: blur(30px);
-                opacity: 0.6;
+                width: 280px;
+                height: 280px;
+                filter: blur(32px);
+                opacity: 0.8;
             }
         }
 
-        /* 隐藏干扰元素 */
+        /* 隐藏无关干扰元素 */
         .topbar, .title-center, .container, .left, .right, .poem-container, .loader, #img, input, button {
             display: none !important;
         }
@@ -408,7 +404,7 @@
     </div>
     <div id="skip-btn">⏎ SKIP</div>
 </div>
-<!-- 动态鼠标光晕特效 -->
+<!-- 鼠标光晕：独立、超高z-index，永远悬浮在最前层，不被图片遮挡 -->
 <div class="mouse-glow" id="mouseGlow"></div>
 
 <div id="transition-panel">
@@ -432,18 +428,19 @@
         const enterBtn = document.getElementById('enter-digital-btn');
         const glowElement = document.getElementById('mouseGlow');
 
-        // ---------- 图片速度提升1.5倍核心参数 ----------
-        // 原背景切换间隔10s → 放快1.5倍 => 间隔 = 10000 / 1.5 ≈ 6667ms
+        // ---------- 图片切换速度提升1.5倍 (核心调整) ----------
+        // 原背景切换间隔10s → 放快1.5倍 => 6667ms
         const BG_SPEED_FACTOR = 1.5;
-        const BG_INTERVAL_MS = Math.round(10000 / BG_SPEED_FACTOR);   // 6667ms (约6.67秒，切换明显加快)
-        
-        // 炫酷鼠标跟随光晕特效
+        const BG_INTERVAL_MS = Math.round(10000 / BG_SPEED_FACTOR);   // 6667ms
+        // 缩放过渡在CSS中已设置为5.733s (8.6s/1.5)
+
+        // 炫酷鼠标跟随光晕特效 (增强流畅度，且绝对不被遮挡)
         if (glowElement) {
             let mouseX = -1000, mouseY = -1000;
+            let rafActive = true;
             function updateGlowPosition() {
-                if (glowElement) {
-                    glowElement.style.transform = `translate(${mouseX}px, ${mouseY}px)`;
-                }
+                if (!glowElement) return;
+                glowElement.style.transform = `translate(${mouseX}px, ${mouseY}px)`;
                 requestAnimationFrame(updateGlowPosition);
             }
             window.addEventListener('mousemove', (e) => {
@@ -453,7 +450,7 @@
             updateGlowPosition();
         }
 
-        // 叙事文本 (加强版, 保留深邃内容)
+        // 叙事文本 (深邃内容)
         const storyRaw = `
 Beneath layers of code: by 2099, humanity vanished. 
 
@@ -492,7 +489,7 @@ Ahead lie digital realms of memories awaiting exploration.
             textContainer.appendChild(div);
         });
 
-        // 背景图列表 (共6张，保持原有)
+        // 背景图列表 (共6张)
         const backgrounds = [
             "netlify/images/bg1.png",
             "netlify/images/bg2.png",
@@ -510,13 +507,13 @@ Ahead lie digital realms of memories awaiting exploration.
             bgTimeouts = [];
         }
         
-        // 切换背景 (加快1.5倍，切换延迟使用新间隔)
+        // 切换背景 (加快1.5倍)
         function switchBackground() {
             if (!bgLayer) return;
             if (currentBgIndex >= backgrounds.length) return;
             bgLayer.style.backgroundImage = `url('${backgrounds[currentBgIndex]}')`;
             bgLayer.classList.remove('zoom-effect');
-            void bgLayer.offsetWidth;   // 强制重绘
+            void bgLayer.offsetWidth;
             bgLayer.classList.add('zoom-effect');
             currentBgIndex++;
             if (currentBgIndex < backgrounds.length) {
@@ -542,7 +539,7 @@ Ahead lie digital realms of memories awaiting exploration.
         
         let animationId = null;
         let currentY = window.innerHeight;
-        // 文字滚动速度保持不变(快节奏叙事，原1.4倍速率未改动)
+        // 文字滚动速度 (快速叙事)
         const SCROLL_SPEED = 0.812;
         
         function getTextScrollHeight() {
@@ -691,9 +688,9 @@ Ahead lie digital realms of memories awaiting exploration.
         }
         
         initParticles();
-        // 图片轮播加快1.5倍: 背景切换更快，过渡缩放动画已经同步提升至5.733s (CSS层面完成)
+        // 背景轮播加快1.5倍
         initBackgroundCarousel();   
-        startScrollAnimation();     // 文本滚动维持快速叙事节奏
+        startScrollAnimation();     
         
         window.addEventListener('resize', handleResize);
         
@@ -728,8 +725,7 @@ Ahead lie digital realms of memories awaiting exploration.
         
         window.generate = undefined;
         
-        // 可选额外: 动态提升沉浸感，日志输出提速标识 (控制台可忽略)
-        console.log(`[Digital USTC] 背景图片切换速度已提升至1.5倍: 间隔${BG_INTERVAL_MS}ms, 缩放过渡5.733s`);
+        console.log(`[Digital USTC] 鼠标光晕已设为最高层级，背景切换速度提升1.5倍: 间隔${BG_INTERVAL_MS}ms`);
     })();
 </script>
 </body>
